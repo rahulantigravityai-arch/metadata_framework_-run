@@ -29,9 +29,10 @@ run_id = dbutils.widgets.get("run_id") or str(uuid.uuid4())
 only = dbutils.widgets.get("only_table_id").strip()
 print("run_id =", run_id)
 
+pg_password = dbutils.widgets.get("pg_password") or dbutils.secrets.get("mfw", "pg_password")
 jdbc_url, jdbc_props = make_jdbc_conn(dbutils.widgets.get("pg_host"), dbutils.widgets.get("pg_port"),
                                       dbutils.widgets.get("pg_db"), dbutils.widgets.get("pg_user"),
-                                      dbutils.widgets.get("pg_password"))
+                                      pg_password)
 
 # COMMAND ----------
 
