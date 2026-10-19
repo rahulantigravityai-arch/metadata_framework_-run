@@ -1,0 +1,4 @@
+return_id,order_id,reason,refund_amount,return_ts
+9005,1025,Wrong item,150.0,2026-10-03 11:15:00
+9006,1016,Damaged item,15.75,2026-10-03 12:15:00
+9001,1006,Partial refund agreed,1800.0,2026-10-02 10:15:00
