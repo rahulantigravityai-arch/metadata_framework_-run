@@ -1,0 +1,33 @@
+# .github/workflows/cd.yml
+# Runs when a pull request is MERGED into main (a push to main).
+# Deploys the notebooks + the scheduled job to Databricks (prod target).
+name: CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # lets you also run it by hand from the Actions tab
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+
+      - name: Validate
+        run: databricks bundle validate -t prod
+
+      - name: Deploy notebooks and job
+        run: databricks bundle deploy -t prod
