@@ -1,0 +1,48 @@
+# databricks.yml  (put at the ROOT of the repo, next to 05_phase5_driver.py)
+bundle:
+  name: metadata_framework
+
+# Only ship what the pipeline needs to Databricks (not slides, sample data, docs, workflows)
+sync:
+  exclude:
+    - slide_17.png
+    - 00_sample_data/**
+    - .github/**
+    - "*.md"
+
+resources:
+  jobs:
+    mfw_pipeline:
+      name: mfw_pipeline_daily
+      max_concurrent_runs: 1          # never let two runs overlap
+
+      # SCHEDULER: every day at 06:00 India time. Change the cron/timezone to suit.
+      # Quartz format: sec min hour day-of-month month day-of-week
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: "Asia/Kolkata"
+        pause_status: UNPAUSED        # (dev target auto-pauses it, see below)
+
+      # Uncomment and set your email to be told when a run fails:
+      # email_notifications:
+      #   on_failure:
+      #     - you@example.com
+
+      tasks:
+        - task_key: run_pipeline
+          notebook_task:
+            notebook_path: ./05_phase5_driver.py
+          # No cluster block => serverless compute (the notebook is built for it)
+
+targets:
+  dev:
+    mode: development                 # names get a [dev <you>] prefix; schedules are PAUSED
+    default: true
+    workspace:
+      host: https://dbc-85509736-da46.cloud.databricks.com
+
+  prod:
+    mode: production                  # real name, schedule is ACTIVE
+    workspace:
+      host: https://dbc-85509736-da46.cloud.databricks.com
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
