@@ -1,0 +1,5 @@
+return_id,order_id,reason,refund_amount,return_ts
+9001,1006,Damaged item,3600.0,2026-10-02 10:15:00
+9002,1003,Damaged item,600.0,2026-10-02 11:15:00
+9003,1007,Damaged item,80.0,2026-10-02 12:15:00
+9004,1011,Changed mind,80.0,2026-10-02 13:15:00
