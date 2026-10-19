@@ -1,0 +1,35 @@
+# .github/workflows/ci.yml
+# Runs on every pull request into main. Does NOT deploy anything.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 1) Every notebook file must at least be valid Python
+      - name: Syntax check notebooks
+        run: python -m py_compile 00_pipeline_lib.py 0[1-6]_*.py
+
+      - uses: databricks/setup-cli@main
+
+      # 2) Validate the bundle against Databricks (skipped for forked PRs, which get no secrets)
+      - name: Validate bundle
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        run: databricks bundle validate -t dev
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
